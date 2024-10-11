@@ -1,0 +1,1 @@
+curl -X POST http://localhost:3000/api/sandbox/client  -H "Content-Type: application/json"  -d '{"clientId": "12345", "sandboxId": "67890", "routerId": "abcde"}'

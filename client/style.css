@@ -1,0 +1,82 @@
+@import "node_modules/ol/ol.css";
+
+html {
+  margin: 0;
+  height: 100%;
+  background-color: black;
+}
+
+#header {
+  display: flex;
+  z-index: 10;
+  height: 10vh;
+  text-align: center;
+  color: white;
+}
+
+#header-1 {
+  flex: 0 0 20%;
+}
+
+#header-2 {
+  position: relative;
+  font-size: 2rem;
+  z-index: 10;
+  padding: 10px;
+  flex: 0 0 60%;
+}
+
+#header-3 {
+  flex: 0 0 20%;
+  font-size: 2.4vw;
+}
+
+#sandboxed {
+  color: black;
+}
+
+#map {
+  position: relative;
+  top: 0;
+  bottom: 0;
+  background-color: black;
+  width: 100%;
+  z-index: 1;
+}
+
+#location {
+  color: green;
+}
+
+#game {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 3vh;
+  padding-right: 3vh;
+  padding-top: 2vh;
+  padding-bottom: 2vh;
+  background-color: white;
+  border: 3px solid black;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+#instructions {
+  margin: auto;
+  width: 50vw;
+  text-align: center;
+  color: black;
+  background-color: white;
+  border: 3px solid black;
+  padding: 1vh;
+  margin-top: 5px;
+}
+
+.confirm-button:hover {
+  background-color: #0056b3;
+}
