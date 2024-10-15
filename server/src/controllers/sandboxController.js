@@ -2,7 +2,8 @@ const axios = require('axios');
 
 const sandboxController = {
 unsandboxClient: async (req, res) => {
-        const { clientId, sandboxId, routerId } = req.body;
+        console.log(`${req.body}` );
+        const { clientId, routerId, sandboxId, sandboxed } = req.body;
         console.log(`unsandbox client ${clientId}` );
 
         if (!clientId || !routerId) {
@@ -41,7 +42,7 @@ unsandboxClient: async (req, res) => {
         try {
             let strippedRouterId = routerId.replace('Router-','');
             let expiry = new Date();
-            expiry.setHours(expiry.getHours() + 3);
+            expiry.setHours(expiry.getHours() + 6);
             let payload = 
             {
                 routerId: strippedRouterId,
@@ -65,6 +66,8 @@ unsandboxClient: async (req, res) => {
             console.error('Error unsandboxing client:', error.message, error.response?.data);
             res.status(500).json({ error: 'Failed to unsandbox client.' });
         }
+
+        res.status(200);
     }
 };
 

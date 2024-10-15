@@ -19,6 +19,7 @@ import axios from 'axios';
 
 let sandboxClient;
 let loading;
+let correctAnswers = 0;
 function calculateDistance(coord1, coord2) {
   const dx = coord1[0] - coord2[0];
   const dy = coord1[1] - coord2[1];
@@ -28,30 +29,31 @@ function calculateDistance(coord1, coord2) {
 function updateStatus(sandboxed) {
   const element = document.getElementById('sandboxed');
   if (loading) {
-    element.innerHTML = "Awaiting update"
+    element.innerHTML = "Unsandbox request in-flight"
   }
   if (sandboxed) {
     element.style.color = "red";
-    element.innerHTML = "Sandboxed"
+    element.innerHTML = "You are sandboxed and have restricted WiFi access"
   } else {
     if (sandboxed == null) {
-    element.style.color = "grey";
-    element.innerHTML = "Loading"
+      element.style.color = "green";
+      element.innerHTML = "You have full wifi access"
     } else {
       element.style.color = "green";
-      element.innerHTML = "Unsandboxed"
+      element.innerHTML = "You have full wifi access"
     }
   }
 }
 
 async function checkSandboxStatus() {
   try {
-    await axios.get(`http://connect.starlinkair.com/starlinkrouter/sandbox-client`)
+    await axios.get(`https://connect.starlinkair.com/starlinkrouter/sandbox-client`)
       .then(resp => {
         console.log(resp)
         if (resp.status == 200) {
           sandboxClient = resp.data;
-          updateStatus(resp.data.Sandboxed);
+          // sandboxClient.correctAnswers = correctAnswers;
+          updateStatus(resp.data.sandboxed);
         } else if (resp.status == 404) {
           updateStatus(true);
         } else {
@@ -67,13 +69,14 @@ async function checkSandboxStatus() {
 
 setInterval(checkSandboxStatus, 5000);
 
-async function joinWifi() {
+async function unsandbox() {
   try {
     loading = true;
-    if (!sandboxClient) {
-      return false;
+    if (!sandboxClient || !sandboxClient.sandboxed) {
+      window.location.href = "https://starlink.com";
     }
-    await axios.post(`http://backend:5000/api/sandbox/client`, sandboxClient, {
+
+    await axios.post(`/api/sandbox/client`, sandboxClient, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -82,6 +85,7 @@ async function joinWifi() {
         loading = false;
         if (resp.status == 200) {
           console.log("Client unsandboxed");
+          window.location.href = "http://www.starlink.com";
         }  
 
         console.log(`Backend returned status code ${resp.status}`);
@@ -93,10 +97,10 @@ async function joinWifi() {
   }
 }
 
+// "Scandia Colles": [51986770.366862275, -40319800.329711884],
+// "Olympus Rupes": [65717853.88145955, -103384378.48431028],
 const proximityThreshold = 30000000;
 const locations = {
-  "Scandia Colles": [51986770.366862275, -40319800.329711884],
-  "Olympus Rupes": [65717853.88145955, -103384378.48431028],
   "Hellas Planitia": [352125153.7496052, -184528382.421702],
   "Mamers Valles": [289481989.9756099, -69633730.73228805],
   "Elysium Volcanic Region": [461444681.6852895, -93148004.19184442],
@@ -258,8 +262,20 @@ try {
   class Game extends Control {
     constructor(map) {
       const container = document.createElement('div');
-      container.id = "game"
-      container.innerHTML = "Start"
+      container.id = "game";
+      const start = document.createElement('button');
+      start.innerHTML = "Start";
+      start.id = "start";
+      container.appendChild(start);
+
+      const joinWifi = document.createElement('button');
+      joinWifi.innerHTML = "Join WiFi";
+      joinWifi.id = "wifi";
+      joinWifi.onclick = async function() {
+          await unsandbox();
+      };
+      container.appendChild(joinWifi);
+      joinWifi.style.display = 'none';
   
       super({
         element: container,
@@ -309,7 +325,7 @@ try {
         this.element.style.display = 'block';
       });
 
-      container.addEventListener('click', this.handleClick.bind(this), false);
+      start.addEventListener('click', this.handleClick.bind(this), false);
     }
 
     handleClick() {
@@ -319,20 +335,22 @@ try {
         this.randomLocation = Object.keys(locations)[Math.floor(Math.random() * Object.keys(locations).length)];
         this.currentMarker = null
         this.currentCoords = null
+        const joinWifi = document.getElementById('wifi');
+        joinWifi.style.display = 'none';
         const location = document.getElementById('location');
         location.innerHTML = this.randomLocation;
 
-        this.element.style.display = 'none';
-        this.element.innerHTML = "Confirm"
         this.element.style.top = 'unset';
         this.element.style.bottom = '10px';
         this.element.style.left = '50%';
         this.element.style.transform = 'translateX(-50%)';
+        const start = document.getElementById('start');
+        start.style.display = 'block';
+        start.innerHTML = 'Confirm';
 
         this.vectorLayer.getSource().clear();
         this.gameInProgress = true;
       } else {
-        // Create marker for the random location
         const randomCoords = locations[this.randomLocation];
         const randomLocationMarker = new Feature(new Point(randomCoords));
         randomLocationMarker.setStyle(new Style({
@@ -368,12 +386,13 @@ try {
                 duration: 2000
             })
 
+        let clickedCloseToLocation = false;
         setTimeout(() => {
-          let clickedCloseToLocation = false;
           const distance = calculateDistance(randomCoords, this.currentCoords);
 
           if (distance < proximityThreshold) {
             clickedCloseToLocation = true;
+            correctAnswers = correctAnswers + 1;
           }
 
           this.map.getView().setMinZoom(0);
@@ -400,15 +419,18 @@ try {
 
           this.vectorLayer.getSource().addFeature(circleMarker);
 
-          if (clickedCloseToLocation) {
-            this.element.innerHTML = `Success! Click here to join WiFi`;
-            joinWifi();
+          const joinWifi = document.getElementById('wifi');
+          const start = document.getElementById('start');
+          joinWifi.style.display = 'block';
+          if (!clickedCloseToLocation) {
+            start.style.display = 'block';
+            start.innerHTML = "Try Again";
           } else {
-            this.element.innerHTML = `Too far! Try again`;
+            start.innerHTML = "Play Again";
           }
 
           this.gameInProgress = false
-        }, 3000);
+        }, 4000);
       }
     }
   }
