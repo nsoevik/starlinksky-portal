@@ -14,6 +14,7 @@ import { get as getProjection } from 'ol/proj.js';
 import { Style, Stroke } from 'ol/style';
 import { Fill, Text, Circle, Icon } from 'ol/style';
 import {Control, defaults as defaultControls} from 'ol/control.js';
+import helmetIcon from '/helmet-icon.png';
 import axios from 'axios';
 
 let sandboxClient;
@@ -35,7 +36,7 @@ function updateStatus(sandboxed) {
   } else {
     if (sandboxed == null) {
     element.style.color = "grey";
-    element.innerHTML = "Awaiting update"
+    element.innerHTML = "Loading"
     } else {
       element.style.color = "green";
       element.innerHTML = "Unsandboxed"
@@ -45,7 +46,7 @@ function updateStatus(sandboxed) {
 
 async function checkSandboxStatus() {
   try {
-    await axios.get(`http://192.168.1.1/starlinkrouter/sandbox-client`)
+    await axios.get(`http://connect.starlinkair.com/starlinkrouter/sandbox-client`)
       .then(resp => {
         console.log(resp)
         if (resp.status == 200) {
@@ -72,7 +73,7 @@ async function joinWifi() {
     if (!sandboxClient) {
       return false;
     }
-    await axios.post(`http://localhost:3000/api/sandbox/client`, sandboxClient, {
+    await axios.post(`http://backend:5000/api/sandbox/client`, sandboxClient, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -296,7 +297,7 @@ try {
         }));
         marker.setStyle(new Style({
           image: new Icon({
-              src: './assets/helmet-icon.png',
+              src: helmetIcon,
               scale: 0.1,
               anchor: [0.5, 0.5],
           }),
@@ -313,8 +314,8 @@ try {
 
     handleClick() {
       if (!this.gameInProgress) {
-        this.map.getView().setMinZoom(2);
-        this.map.getView().setZoom(3);
+        this.map.getView().setMinZoom(1);
+        this.map.getView().setZoom(2);
         this.randomLocation = Object.keys(locations)[Math.floor(Math.random() * Object.keys(locations).length)];
         this.currentMarker = null
         this.currentCoords = null
@@ -366,7 +367,6 @@ try {
                 center: randomCoords,
                 duration: 2000
             })
-
 
         setTimeout(() => {
           let clickedCloseToLocation = false;
@@ -420,8 +420,8 @@ try {
     view: new View({
       projection: getProjection('EPSG:104905'),
       center: [236769970.08131555, -135522799.9096726],
-      zoom: 3,
-      minZoom: 2,
+      zoom: 0,
+      minZoom: 0,
       maxZoom: 7,
       resolutions: resolutions,
       extent: [324522.6777193472, -255178329.33093852, 481371664.02665454, -576205.223378554]

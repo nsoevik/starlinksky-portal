@@ -6,7 +6,8 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const HOSTNAME = process.env.HOSTNAME || "2605:59c8:97e:5610:9a3e:1b54:62b9:b282";
+const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors());
@@ -18,8 +19,8 @@ app.use(express.static(path.join(__dirname, '../client/dist')));
 
 app.use('/api', sandboxRoutes);
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, HOSTNAME, () => {
+    console.log(`Server is running on http://${HOSTNAME}:${PORT}`);
 });
 
 process.on('SIGINT', () => {

@@ -3,6 +3,7 @@ const axios = require('axios');
 const sandboxController = {
 unsandboxClient: async (req, res) => {
         const { clientId, sandboxId, routerId } = req.body;
+        console.log(`unsandbox client ${clientId}` );
 
         if (!clientId || !routerId) {
             return res.status(400).json({ error: 'clientId, sandboxId, and routerId are required.' });
