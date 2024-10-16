@@ -7,12 +7,31 @@
     <title>Geoguesser</title>
   </head>
   <body>
+      <script>
+        window.closePopup = function() {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'none';
+        };
+
+        window.onload = () => {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'flex';
+        };
+    </script>
+    <div id="popup" class="popup">
+        <div class="popup-content" onclick="closePopup()">
+            <span class="close-button">×</span>
+            <h2>Play to access WiFi</h2>
+            <div class="help-text">This is a test of Starlink captive portal.</div> 
+            <div class="help-text">Contact Njord Soevik about any issues.</div> 
+            <button class="close-popup-button" onclick="closePopup()">UNDERSTOOD</button>
+        </div>
+    </div>
     <div id="header">MARS GEOGUESSER</div>
-    <div id="map"></div>
     <div class="footer">
         <div id="sandboxed">Loading</div>
-        <div id="disclaimer">This website is a test for Starlink captive portal. Complain to Njord Soevik about any bugs.</div>
     </div>
+    <div id="map"></div>
     <script type="module" src="./main.js"></script>
   </body>
 </html>

@@ -49,7 +49,6 @@ async function checkSandboxStatus() {
   try {
     await axios.get(`https://connect.starlinkair.com/starlinkrouter/sandbox-client`)
       .then(resp => {
-        console.log(resp)
         if (resp.status == 200) {
           sandboxClient = resp.data;
           // sandboxClient.correctAnswers = correctAnswers;
@@ -74,6 +73,7 @@ async function unsandbox() {
     loading = true;
     if (!sandboxClient || !sandboxClient.sandboxed) {
       window.location.href = "https://starlink.com";
+      return;
     }
 
     await axios.post(`/api/sandbox/client`, sandboxClient, {
@@ -85,7 +85,8 @@ async function unsandbox() {
         loading = false;
         if (resp.status == 200) {
           console.log("Client unsandboxed");
-          window.location.href = "http://www.starlink.com";
+          window.location.href = "https://www.starlink.com";
+	  return;
         }  
 
         console.log(`Backend returned status code ${resp.status}`);
@@ -246,7 +247,7 @@ try {
       instructions.id = "instructions"
       const header = document.createElement('div');
       header.id = "instructions-header"
-      header.innerHTML =`Find the location to join WiFi`
+      header.innerHTML =`Find the location`
       header.style.color = "black";
       instructions.appendChild(header);
       const location = document.createElement('div');
